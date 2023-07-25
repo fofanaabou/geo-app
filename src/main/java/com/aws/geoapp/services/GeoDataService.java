@@ -1,17 +1,26 @@
 package com.aws.geoapp.services;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.aws.geoapp.configuration.AWSProperties;
 import com.aws.geoapp.models.BucketObjectInfo;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +30,7 @@ public class GeoDataService implements StorageService {
 
     private final AwsConnection awsConnection;
     private final AWSProperties awsProperties;
+
 
     private File convertFilePartToByteArray(FilePart filePart) {
         Path root = Paths.get(awsProperties.getLocalUploadPath());
@@ -46,8 +56,31 @@ public class GeoDataService implements StorageService {
     }
 
     @Override
-    public Mono<BucketObjectInfo> getBucketObject(String key, String encodingType) {
-        return null;
+    public Flux<BucketObjectInfo> getBucketObject() {
+
+        AmazonS3 awsAmazon3 = awsConnection.getClient();
+        ObjectListing objectListing = awsAmazon3.listObjects(awsProperties.getBucketName(), awsProperties.getS3BucketPath());
+        URL url = getUrl(awsAmazon3);
+
+        return  Flux.fromIterable(objectListing.getObjectSummaries())
+                .map(os ->  createAndInitializeBucketInfo(os, url));
+    }
+
+    private static BucketObjectInfo createAndInitializeBucketInfo(S3ObjectSummary os, URL url) {
+        BucketObjectInfo bucketObjectInfo = new BucketObjectInfo();
+        bucketObjectInfo.setKey(os.getKey());
+        bucketObjectInfo.setObjectUrl(url.toString());
+        return bucketObjectInfo;
+    }
+
+    private URL getUrl(AmazonS3 awsAmazon3) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
+                awsProperties.getBucketName(),
+                awsProperties.getS3BucketPath() + "kinesis-firehose.png")
+                .withMethod(HttpMethod.GET)
+                .withExpiration(Date.from(Instant.now().plus(Duration.ofHours(2))));
+
+        return awsAmazon3.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
 }

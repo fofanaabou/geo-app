@@ -4,7 +4,6 @@ import lombok.*;
 
 @Data
 public class BucketObjectInfo {
+    private String objectUrl;
     private String key;
-    private String size;
-    private String lastModified;
 }
