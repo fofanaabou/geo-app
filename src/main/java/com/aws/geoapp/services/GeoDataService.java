@@ -60,10 +60,12 @@ public class GeoDataService implements StorageService {
 
         AmazonS3 awsAmazon3 = awsConnection.getClient();
         ObjectListing objectListing = awsAmazon3.listObjects(awsProperties.getBucketName(), awsProperties.getS3BucketPath());
-        URL url = getUrl(awsAmazon3);
 
         return  Flux.fromIterable(objectListing.getObjectSummaries())
-                .map(os ->  createAndInitializeBucketInfo(os, url));
+                .map(os -> {
+                    URL url = getUrl(awsAmazon3,  os.getKey());
+                    return createAndInitializeBucketInfo(os, url);
+                });
     }
 
     private static BucketObjectInfo createAndInitializeBucketInfo(S3ObjectSummary os, URL url) {
@@ -73,10 +75,9 @@ public class GeoDataService implements StorageService {
         return bucketObjectInfo;
     }
 
-    private URL getUrl(AmazonS3 awsAmazon3) {
+    private URL getUrl(AmazonS3 awsAmazon3, String key) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
-                awsProperties.getBucketName(),
-                awsProperties.getS3BucketPath() + "kinesis-firehose.png")
+                awsProperties.getBucketName(), key)
                 .withMethod(HttpMethod.GET)
                 .withExpiration(Date.from(Instant.now().plus(Duration.ofHours(2))));
 
