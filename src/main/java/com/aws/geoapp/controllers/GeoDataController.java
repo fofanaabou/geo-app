@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class GeoDataController {
 
     private final StorageService storageService;
-    public static final String BASE_URL = "geo-data";
+    public static final String BASE_URL = "buckets";
 
     @PostMapping(value = "/upload")
     @ResponseStatus(value = HttpStatus.CREATED)
