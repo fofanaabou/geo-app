@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(GeoDataController.BASE_URL)
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
 public class GeoDataController {
 
     private final StorageService storageService;
@@ -23,7 +24,7 @@ public class GeoDataController {
         return storageService.store(file);
     }
 
-    @GetMapping(value = "/bucket-object")
+    @GetMapping(value = "/bucket-objects")
     public Flux<BucketObjectInfo> getBucketObject() {
         return storageService.getBucketObject();
     }

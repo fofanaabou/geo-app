@@ -4,6 +4,7 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.aws.geoapp.configuration.AWSProperties;
 import com.aws.geoapp.models.BucketObjectInfo;
@@ -14,8 +15,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -32,27 +36,46 @@ public class GeoDataService implements StorageService {
     private final AWSProperties awsProperties;
 
 
-    private File convertFilePartToByteArray(FilePart filePart) {
+    private byte[] convertFilePartToByteArray(FilePart filePart) throws IOException {
         Path root = Paths.get(awsProperties.getLocalUploadPath());
         File file = new File(root.resolve(filePart.filename()).toUri());
         filePart.transferTo(file).then().block();
-        return file;
+        return Files.readAllBytes(file.toPath());
     }
 
     @Override
     public Mono<Void> store(Mono<FilePart> filePart) {
-        return filePart.doOnNext(ps -> log.info(ps.filename()))
+        AmazonS3 awsAmazon3 = awsConnection.getClient();
+        return filePart
                 .flatMap(f -> {
-                    uploadFile(f);
+                    try {
+                        uploadFile(f, awsAmazon3);
+                    } catch (IOException e) {
+                        return Mono.error(new RuntimeException(e));
+                    }
                     return Mono.empty();
                 })
                 .then();
     }
 
-    private void uploadFile(FilePart f) {
-        File file = convertFilePartToByteArray(f);
-        AmazonS3 awsAmazon3 = awsConnection.getClient();
-        awsAmazon3.putObject(awsProperties.getBucketName(), awsProperties.getS3BucketPath()+ f.filename(), file);
+    private void uploadFile(FilePart f, AmazonS3 awsAmazon3) throws IOException {
+        byte[] fileData = convertFilePartToByteArray(f);
+        String key = awsProperties.getS3BucketPath() + f.filename();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(fileData.length);
+        awsAmazon3.putObject(awsProperties.getBucketName(), key, new ByteArrayInputStream(fileData), metadata);
+        deleteFileCreatedAfterUpload();
+    }
+
+    private void deleteFileCreatedAfterUpload() throws IOException {
+        File directory = Paths.get(awsProperties.getLocalUploadPath()).toFile();
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            assert files != null;
+            for (File f : files) {
+                Files.deleteIfExists(f.toPath());
+            }
+        }
     }
 
     @Override
@@ -61,9 +84,9 @@ public class GeoDataService implements StorageService {
         AmazonS3 awsAmazon3 = awsConnection.getClient();
         ObjectListing objectListing = awsAmazon3.listObjects(awsProperties.getBucketName(), awsProperties.getS3BucketPath());
 
-        return  Flux.fromIterable(objectListing.getObjectSummaries())
+        return Flux.fromIterable(objectListing.getObjectSummaries())
                 .map(os -> {
-                    URL url = getUrl(awsAmazon3,  os.getKey());
+                    URL url = getUrl(awsAmazon3, os.getKey());
                     return createAndInitializeBucketInfo(os, url);
                 });
     }

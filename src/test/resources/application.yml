@@ -3,8 +3,8 @@ server:
     context-path: api
 aws:
   bucketName: "geodata20"
-  accessKey: "AKIAYHDRRHGEUXBJCOEP"
-  secretKey: "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"
+  accessKey: "AKIAYHDRRHGE4ADARK6Q"
+  secretKey: "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"
   region: "EU_WEST_3"
   localUploadPath: "src/main/resources/static/uploads/"
   s3BucketPath: "vector/"
