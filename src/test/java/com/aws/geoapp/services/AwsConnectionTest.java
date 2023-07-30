@@ -2,8 +2,6 @@ package com.aws.geoapp.services;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,22 +17,15 @@ class AwsConnectionTest {
     private static final List<String> bucketNames = List.of( "dev-afo-bucket", "geodata20");
 
     @Autowired
-    private AwsConnection awsConnection;
+    private  AwsConnection awsConnection;
 
-    private AmazonS3 awsClient;
+    private  AmazonS3 awsClient;
 
-    @BeforeEach
-    void setUp() {
-        awsClient = awsConnection.getClient();
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
 
     @Test
     @DisplayName("Test connection to aws")
     void getClient() {
+        awsClient = awsConnection.getClient();
         List<String> commons = getListOfBucketNames().stream()
                 .distinct()
                 .filter(bucketNames::contains)

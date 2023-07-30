@@ -1,5 +1,6 @@
 package com.aws.geoapp.controllers;
 
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.aws.geoapp.models.BucketObjectInfo;
 import com.aws.geoapp.services.StorageService;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ public class GeoDataController {
 
     @PostMapping(value = "/upload")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Mono<Void> upload(@RequestPart("file") Mono<FilePart> file) {
+    public Mono<PutObjectResult> upload(@RequestPart("file") Mono<FilePart> file) {
         return storageService.store(file);
     }
 
