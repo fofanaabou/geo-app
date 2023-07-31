@@ -69,7 +69,6 @@ class GeoDataServiceTest {
         when(filePart.transferTo(any(File.class))).thenReturn(Mono.empty());
         when(filePart.filename()).thenReturn(file.getName());
 
-
         // when
         Mono<PutObjectResult> result = geoDataService.store(Mono.just(filePart));
         // then
