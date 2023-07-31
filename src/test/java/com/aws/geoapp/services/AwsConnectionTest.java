@@ -21,7 +21,6 @@ class AwsConnectionTest {
 
     private  AmazonS3 awsClient;
 
-
     @Test
     @DisplayName("Test connection to aws")
     void getClient() {
@@ -40,5 +39,4 @@ class AwsConnectionTest {
     private List<String> getListOfBucketNames() {
         return awsClient.listBuckets().stream().map(Bucket::getName).sorted().toList();
     }
-
 }
