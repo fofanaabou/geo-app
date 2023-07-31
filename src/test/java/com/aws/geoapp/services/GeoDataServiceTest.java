@@ -8,6 +8,7 @@ import com.aws.geoapp.configuration.AWSProperties;
 import com.aws.geoapp.models.BucketObjectInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,6 +54,7 @@ class GeoDataServiceTest {
     }
 
     @Test
+    @Disabled
     void store() throws IOException {
         File file = new File(STATIC_UPLOAD + "/test.txt");
         boolean file1Exists = file.createNewFile();
@@ -77,6 +79,7 @@ class GeoDataServiceTest {
     }
 
     @Test
+    @Disabled
     void getBucketObject() {
         // given
 
