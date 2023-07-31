@@ -38,7 +38,6 @@ class GeoDataControllerTest {
 
     @Test
     @DisplayName("Upload file to aws")
-    @Disabled
     void upload() {
         webTestClient.post().uri(GeoDataController.BASE_URL + "/upload")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -52,7 +51,6 @@ class GeoDataControllerTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("Get all objects from aws")
     void getBucketObject() {
         webTestClient.get().uri(GeoDataController.BASE_URL + "/bucket-objects")

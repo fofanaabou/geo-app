@@ -8,7 +8,6 @@ import com.aws.geoapp.configuration.AWSProperties;
 import com.aws.geoapp.models.BucketObjectInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,14 +20,13 @@ import reactor.test.StepVerifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GeoDataServiceTest {
 
-    public static final String STATIC_UPLOAD = "src/test/resources/static/upload";
+    public static final String STATIC_UPLOAD = "";
     @Mock
     private AwsConnection awsConnection;
 
@@ -54,20 +52,15 @@ class GeoDataServiceTest {
     }
 
     @Test
-    @Disabled
-    void store() throws IOException {
-        File file = new File(STATIC_UPLOAD + "/test.txt");
-        boolean file1Exists = file.createNewFile();
-        // given
+    void store() {
         PutObjectResult putObjectResult = new PutObjectResult();
         when(awsConnection.getClient()).thenReturn(s3Client);
         when(awsProperties.getBucketName()).thenReturn("test");
         when(awsProperties.getS3BucketPath()).thenReturn(STATIC_UPLOAD);
-        when(awsProperties.getLocalUploadPath()).thenReturn(STATIC_UPLOAD);
         when(s3Client.putObject(anyString(), anyString(), any(ByteArrayInputStream.class), any(ObjectMetadata.class)))
                 .thenReturn(putObjectResult);
         when(filePart.transferTo(any(File.class))).thenReturn(Mono.empty());
-        when(filePart.filename()).thenReturn(file.getName());
+        when(filePart.filename()).thenReturn("test.txt");
 
         // when
         Mono<PutObjectResult> result = geoDataService.store(Mono.just(filePart));
@@ -78,7 +71,6 @@ class GeoDataServiceTest {
     }
 
     @Test
-    @Disabled
     void getBucketObject() {
         // given
 

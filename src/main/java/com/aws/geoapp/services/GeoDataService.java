@@ -36,8 +36,8 @@ public class GeoDataService implements StorageService {
 
 
     private byte[] convertFilePartToByteArray(FilePart filePart) throws IOException {
-        Path root = Paths.get(awsProperties.getLocalUploadPath());
-        File file = new File(root.resolve(filePart.filename()).toUri());
+        Path path = Paths.get(filePart.filename());
+        File file = Files.createFile(path).toFile();
         filePart.transferTo(file).block();
         return Files.readAllBytes(file.toPath());
     }
@@ -60,19 +60,12 @@ public class GeoDataService implements StorageService {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(fileData.length);
         PutObjectResult putObjectResult = awsAmazon3.putObject(awsProperties.getBucketName(), key, new ByteArrayInputStream(fileData), metadata);
-        deleteFileCreatedAfterUpload();
+        deleteFileCreatedAfterUpload(Paths.get(f.filename()));
         return Mono.just(putObjectResult);
     }
 
-    private void deleteFileCreatedAfterUpload() throws IOException {
-        File directory = Paths.get(awsProperties.getLocalUploadPath()).toFile();
-        if (directory.exists()) {
-            File[] files = directory.listFiles();
-            assert files != null;
-            for (File f : files) {
-                Files.deleteIfExists(f.toPath());
-            }
-        }
+    private void deleteFileCreatedAfterUpload(Path path) throws IOException {
+        Files.deleteIfExists(path);
     }
 
     @Override
