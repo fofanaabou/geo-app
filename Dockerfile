@@ -6,7 +6,8 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
-RUN  ./mvnw install -DskipTests
+RUN chmod +x ./mvnw
+RUN target=/root/.m2 ./mvnw install -DskipTests
 
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} target/application.jar
