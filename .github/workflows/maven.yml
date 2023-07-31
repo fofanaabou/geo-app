@@ -15,7 +15,17 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
+    
+env:
+  AWS_REGION: "eu-west-3"                   # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: gis-repository           # set this to your Amazon ECR repository name
+  ECS_SERVICE: MY_ECS_SERVICE                 # set this to your Amazon ECS service name
+  ECS_CLUSTER: MY_ECS_CLUSTER                 # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
+                                               # file, e.g. .aws/task-definition.json
+  CONTAINER_NAME: MY_CONTAINER_NAME
+  AWS_ACCESSKEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRETKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 jobs:
   build:
 
