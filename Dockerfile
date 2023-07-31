@@ -21,7 +21,10 @@ USER demo
 ARG EXTRACTED=/workspace/app/target/extracted
 WORKDIR application
 COPY --from=build ${EXTRACTED}/dependencies/ ./
+RUN true
 COPY --from=build ${EXTRACTED}/spring-boot-loader/ ./
+RUN true
 COPY --from=build ${EXTRACTED}/snapshot-dependencies/ ./
+RUN true
 COPY --from=build ${EXTRACTED}/application/ ./
 ENTRYPOINT ["java","-noverify","-XX:TieredStopAtLevel=1","-Dspring.main.lazy-initialization=true","org.springframework.boot.loader.JarLauncher"]
