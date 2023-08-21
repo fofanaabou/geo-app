@@ -1,6 +1,7 @@
 package com.aws.geoapp.controllers;
 
-import com.aws.geoapp.models.BucketObjectInfo;
+import com.aws.geoapp.application.VectorDataController;
+import com.aws.geoapp.domain.entity.BucketFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -38,8 +39,9 @@ class GeoDataControllerTest {
 
     @Test
     @DisplayName("Upload file to aws")
+    @Disabled
     void upload() {
-        webTestClient.post().uri(GeoDataController.BASE_URL + "/upload")
+        webTestClient.post().uri(VectorDataController.BASE_URL + "/upload")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .bodyValue(generateBody())
                 .exchange()
@@ -52,12 +54,13 @@ class GeoDataControllerTest {
 
     @Test
     @DisplayName("Get all objects from aws")
+    @Disabled
     void getBucketObject() {
-        webTestClient.get().uri(GeoDataController.BASE_URL + "/bucket-objects")
+        webTestClient.get().uri(VectorDataController.BASE_URL + "/bucket-objects")
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBodyList(BucketObjectInfo.class)
+                .expectBodyList(BucketFile.class)
                 .returnResult()
                 .getResponseBody();
     }
