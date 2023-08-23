@@ -22,7 +22,7 @@ public class VectorDataServiceImpl implements VectorDataService {
         return bucketMono.flatMap(this::create);
     }
 
-    private Mono<? extends VectorData> create(BucketFile bucketFile) {
+    private Mono<VectorData> create(BucketFile bucketFile) {
         VectorData vectorData = VectorData.builder()
                 .createdAt(LocalDateTime.now().toString())
                 .bucketFileUrl(bucketFile.getKey())

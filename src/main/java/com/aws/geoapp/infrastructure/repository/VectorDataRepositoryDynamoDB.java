@@ -1,8 +1,9 @@
 package com.aws.geoapp.infrastructure.repository;
 
 import com.aws.geoapp.domain.entity.VectorData;
-import com.aws.geoapp.domain.mapper.VectorDataMapper;
+import com.aws.geoapp.infrastructure.mapper.VectorDataMapper;
 import com.aws.geoapp.domain.repository.VectorDataRepository;
+import com.aws.geoapp.infrastructure.model.VectorDataInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,8 @@ public class VectorDataRepositoryDynamoDB implements VectorDataRepository {
     private static final VectorDataMapper vectorDataMapper = VectorDataMapper.INSTANCE;
     @Override
     public VectorData save(VectorData vectorData) {
-        return vectorDataMapper.toDomain(dynamoDBRepository.save(vectorDataMapper.toEntity(vectorData)));
+        VectorDataInfo vectorDataInfo = vectorDataMapper.toEntity(vectorData);
+        return vectorDataMapper.toDomain(dynamoDBRepository.save(vectorDataInfo));
     }
 
     @Override
