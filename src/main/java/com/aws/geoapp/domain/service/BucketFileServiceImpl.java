@@ -34,8 +34,10 @@ public class BucketFileServiceImpl implements BucketFileService {
     }
 
     private Mono<? extends BucketFile> uploadFile(FilePart file) throws IOException {
+
         String path = awsProperties.getS3BucketPath() + file.filename();
         BucketFile bucketFile = BucketFile.builder().name(file.filename()).key(path).build();
+
         bucketFileRepository.store(file)
                 .ifPresent(p -> bucketFile.setVersionId(p.getVersionId()));
 
